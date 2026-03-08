@@ -7,6 +7,7 @@ type exp_val =
   | NumVal of int
   | BoolVal of bool
   | PairVal of exp_val*exp_val
+  | ListVal of exp_val list
   | TupleVal of exp_val list
 type env =
   | EmptyEnv
@@ -78,7 +79,9 @@ let rec extend_env_list_helper =
 let extend_env_list =
   fun ids evs ->
   fun en ->
-  Ok (extend_env_list_helper ids evs en)
+  if List.length ids = List.length evs
+  then Ok (extend_env_list_helper ids evs en)
+  else Error "extend_env_list: Arguments do not match parameters!"
     
 let rec apply_env : string -> exp_val ea_result = fun id env ->
   match env with
@@ -91,6 +94,11 @@ let rec apply_env : string -> exp_val ea_result = fun id env ->
 
 
 (* operations on expressed values *)
+
+(**          HOMEWORK 3          *)
+let list_of_listVal : exp_val -> (exp_val list) ea_result = function
+  | ListVal li -> return li
+  | _ -> error "Expected a list!"
 
 let int_of_numVal : exp_val -> int ea_result =  function
   |  NumVal n -> return n
