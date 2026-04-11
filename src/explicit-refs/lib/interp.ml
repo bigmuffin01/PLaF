@@ -3,6 +3,11 @@ open Parser_plaf.Ast
 open Parser_plaf.Parser
     
 let g_store = Store.empty_store 20 (NumVal 0)
+let rec addIds fs evs =
+  match fs,evs with
+  | [],[]->[]
+  | (id, (is_mutable,_))::t1, v::t2->(id,(is_mutable,v)):: addIds t1 t2
+  | _,_ -> failwith "error: lists have different sizes"
 
 let rec eval_expr : expr -> exp_val ea_result = fun e ->
   match e with
@@ -92,6 +97,7 @@ let rec eval_expr : expr -> exp_val ea_result = fun e ->
     sequence (List.map eval_expr es) >>= fun l ->
     return (List.hd (List.rev l))
   | Unit -> return UnitVal
+  (** HOMEWORK 4 *)
   | Debug(_e) ->
     string_of_env >>= fun str_env ->
     let str_store = Store.string_of_store string_of_expval g_store 
