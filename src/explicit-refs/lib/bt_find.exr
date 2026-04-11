@@ -5,5 +5,15 @@ let n_left = { data <= 12; left <= 0; right <= 0}    (* 0 in head signals null *
 in let n_right = { data <= 44; left <= 0; right <= 0}
 in let n_root = { data <= 33; left <= n_left ; right <= n_right }
 in let t1 = { root <= n_root ; length <= 3} 
-in let find_bt = (* complete *)
+in let find_bt = proc (t1) { proc (t) {
+    letrec find_bt_helper (nd) =
+    if number?(nd) then zero?(1) else (
+        if nd.data = t then zero?(0) else (
+            if nd.data << t
+            then (find_bt_helper nd.right)
+            else (find_bt_helper nd.left)
+        )
+    )
+    in (find_bt_helper t1.root)
+}}
 in ((find_bt t1) 12)
