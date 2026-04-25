@@ -138,11 +138,42 @@ let compose_tsubs subs1 subs2 =
 let rec occurs : string -> texpr -> bool =
   fun id ty ->
   match ty with   
-  | _ -> failwith "occurs: not implemented"
+  | BoolType -> false
+  | IntType -> false
+  | TypeVar varID -> id = varID
+  | FuncType (l, r) -> (occurs id l) || (occurs id r)
 
 let rec unify_ : EqSet.t -> texpr SubsMap.t -> texpr SubsMap.t result =
-  fun eqs ->
-  failwith "implement me"
+  fun eqs subs ->
+  match EqSet.min_elt_opt eqs with
+  | None -> Ok subs
+  (* Decomposition *)
+  | Some (IntType, IntType) ->
+    unify_ (EqSet.remove (IntType, IntType) eqs) subs
+  | Some (BoolType, BoolType) ->
+    unify_ (EqSet.remove (BoolType, BoolType) eqs) subs
+  | Some (FuncType(s1, s2), FuncType(t1, t2)) ->
+    let rem = EqSet.remove (FuncType(s1, s2), FuncType(t1, t2)) eqs in
+    let add = EqSet.add (s1, t1) rem in
+    unify_ (EqSet.add (s2, t2) add) subs
+  (* Trivial Pair *)
+  | Some (TypeVar a, TypeVar b) when a = b ->
+    unify_ (EqSet.remove (TypeVar a, TypeVar b) eqs) subs
+  | Some (TypeVar a, t) ->
+    if occurs a t (* Occur check *)
+    then Error "occurs check"
+    else
+      let rem = EqSet.remove (TypeVar a, t) eqs in
+      let sub = SubsMap.singleton a t in
+      let newEqs = apply_tsubs_to_eqs rem sub in
+      let newSub = compose_tsubs subs sub in
+      unify_ newEqs newSub
+  (* Swap *)
+  | Some (t, TypeVar a) ->
+    let rem = EqSet.remove (t, TypeVar a) eqs in
+    unify_ (EqSet.add (TypeVar a, t) rem) subs
+  (* fail *)
+  | _ -> Error "types do not unify"
 
 let unify : EqSet.t -> texpr SubsMap.t result =
   fun eqs -> 
