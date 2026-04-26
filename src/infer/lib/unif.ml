@@ -173,7 +173,7 @@ let rec unify_ : EqSet.t -> texpr SubsMap.t -> texpr SubsMap.t result =
     let rem = EqSet.remove (t, TypeVar a) eqs in
     unify_ (EqSet.add (TypeVar a, t) rem) subs
   (* fail *)
-  | _ -> Error "types do not unify"
+  | Some (s, t) -> Error("unify_: types do not unify : "^string_of_eq (s,t))
 
 let unify : EqSet.t -> texpr SubsMap.t result =
   fun eqs -> 
