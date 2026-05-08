@@ -52,6 +52,10 @@ let rec chk_expr : expr -> texpr tea_result = function
      else error
          "LetRec: Type of recursive function does not match
 declaration")
+  | Tuple(es) ->
+    failwith "implement me"
+  | Untuple(ids,e1,e2) ->
+    failwith "implement me"      
   | Debug(_e) ->
     string_of_tenv >>= fun str ->
     print_endline str;

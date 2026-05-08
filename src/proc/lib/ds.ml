@@ -103,14 +103,13 @@ let rec string_of_list_of_strings = function
 let rec string_of_expval = function
   |  NumVal n -> "NumVal " ^ string_of_int n
   | BoolVal b -> "BoolVal " ^ string_of_bool b
-  | ProcVal (id,body,env) -> "ProcVal ("^ id ^","^string_of_expr
+  | ProcVal (id,body,env) -> "ProcVal("^ id ^","^string_of_expr
                                body^","^ string_of_env' []
                                              env^")"
   | PairVal(v1,v2) -> "PairVal("^string_of_expval
                         v1^","^string_of_expval v2^")"
     
-and
-   string_of_env' ac = function
+and string_of_env' ac = function
   | EmptyEnv ->  "["^String.concat ",\n" ac^"]"
   | ExtendEnv(id,v,env) -> string_of_env' ((id^":="^string_of_expval v)::ac) env
 
